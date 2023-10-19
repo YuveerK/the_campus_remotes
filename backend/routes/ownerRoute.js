@@ -4,14 +4,14 @@ const router = express.Router();
 
 // Create endpoint
 router.post("/create-owner", async (req, res) => {
-  const { id_document, name, surname, email, cell_phone_number } = req.body;
+  const { id_number, name, surname, email, cell_phone_number } = req.body;
   const query =
-    "INSERT INTO owner (owner_id, id_document, name, surname, email, cell_phone_number, created_at, updated_at) VALUES (UUID(), ?, ?, ?, ?, ?, NOW(), NOW())";
+    "INSERT INTO owner (owner_id, id_number, name, surname, email, cell_phone_number, created_at, updated_at) VALUES (UUID(), ?, ?, ?, ?, ?, NOW(), NOW())";
 
   try {
     db.query(
       query,
-      [id_document, name, surname, email, cell_phone_number],
+      [id_number, name, surname, email, cell_phone_number],
       (error, data) => {
         if (error) {
           res.status(400).json(error);
@@ -39,7 +39,7 @@ router.get("/get-owners", (req, res) => {
 });
 
 // Get a single owner
-router.get("/:owner_id", (req, res) => {
+router.get("/get-owner/:owner_id", (req, res) => {
   const query = "SELECT * FROM owner WHERE owner_id = ?";
 
   db.query(query, [req.params.owner_id], (error, data) => {
@@ -51,19 +51,27 @@ router.get("/:owner_id", (req, res) => {
   });
 });
 
-router.put("/:owner_id", (req, res) => {
-  const { id_document, name, surname, email, cell_phone_number } = req.body;
+router.put("/update-owner/:owner_id", (req, res) => {
+  const { id_number, name, surname, email, cell_phone_number } = req.body;
   const query =
-    "UPDATE owner SET id_document = ?, name = ?, surname = ?, email = ?, cell_phone_number = ?, updated_at = NOW() WHERE owner_id = ?";
+    "UPDATE owner SET id_number = ?, name = ?, surname = ?, email = ?, cell_phone_number = ?, updated_at = NOW() WHERE owner_id = ?";
 
   db.query(
     query,
-    [id_document, name, surname, email, cell_phone_number, req.params.owner_id],
+    [id_number, name, surname, email, cell_phone_number, req.params.owner_id],
     (error, data) => {
       if (error) {
         res.status(400).json(error);
       } else {
-        res.status(200).send({ message: "Owner updated successfully" });
+        const query = "SELECT * FROM owner WHERE owner_id = ?";
+
+        db.query(query, [req.params.owner_id], (error, data) => {
+          if (error) {
+            res.status(400).json(error);
+          } else {
+            res.status(200).send(data[0]);
+          }
+        });
       }
     }
   );

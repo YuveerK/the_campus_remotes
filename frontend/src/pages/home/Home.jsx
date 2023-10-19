@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import env from "react-dotenv";
 import axios from "axios";
+import OwnerModal from "./OwnerModal";
 const Home = () => {
   const [owners, setOwners] = useState([]);
-
+  const [selectedOwnerId, setSelectedOwnerId] = useState("");
+  const [isViewOwnerModalClicked, setIsViewOwnerModalClicked] = useState(false);
   useEffect(() => {
     getOwners();
   }, []);
@@ -15,6 +17,16 @@ const Home = () => {
     } catch (error) {
       console.log(error.response.data);
     }
+  };
+
+  const viewOwner = (owner_id) => {
+    console.log(owner_id);
+    setSelectedOwnerId(owner_id);
+    setIsViewOwnerModalClicked(true);
+  };
+
+  const closeModal = (payload) => {
+    setIsViewOwnerModalClicked(payload);
   };
   return (
     <div className="w-full h-full flex items-center justify-center p-8">
@@ -51,7 +63,7 @@ const Home = () => {
               className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
             >
               <td className="py-2 px-4 border-b border-gray-200 text-sm">
-                {owner.id_document}
+                {owner.id_number}
               </td>
               <td className="py-2 px-4 border-b border-gray-200 text-sm">
                 {owner.name}
@@ -69,7 +81,10 @@ const Home = () => {
                 {new Date(owner.created_at).toLocaleString()}
               </td>
               <td className="py-2 px-4 border-b border-gray-200 text-sm">
-                <div className="w-fit px-4 py-2 rounded-md text-white bg-green-500 text-center">
+                <div
+                  className="w-fit px-4 py-2 rounded-md text-white bg-green-500 text-center hover:bg-green-600 hover:cursor-pointer"
+                  onClick={() => viewOwner(owner.owner_id)}
+                >
                   <p>View Profile</p>
                 </div>
               </td>
@@ -77,6 +92,9 @@ const Home = () => {
           ))}
         </tbody>
       </table>
+      {isViewOwnerModalClicked && (
+        <OwnerModal closeModal={closeModal} owner_id={selectedOwnerId} />
+      )}
     </div>
   );
 };
